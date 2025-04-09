@@ -1,7 +1,7 @@
 import logging
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import ParseMode
-from aiogram.utils import executor
+from aiogram.types import executor
+from aiogram.utils import ParseMode
 
 API_TOKEN = '7143801443:AAFHgOFsDrphPPXRODN65XXdG7JhHKsEy84'
 USER_ID = 34267896
