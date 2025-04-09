@@ -31,17 +31,17 @@ async def tech_support(message: types.Message):
 
 @dp.message_handler(commands=['check_sub'])
 async def check_subscription(message: types.Message):
-    # Здесь можно проверить, активна ли подписка. Пока что используем заглушку.
-    days_left = 30  # Примерное значение
+    # Здесь можно добавить реальную проверку подписки; сейчас заглушка:
+    days_left = 30
     await message.reply(f"У вас осталось {days_left} дней подписки!")
 
 @dp.message_handler(commands=['servers'])
 async def list_servers(message: types.Message):
-    await message.reply("Список доступных серверов:\n1. USA\n2. Germany\n3. Russia\n4. Japan")
+    await message.reply("Список серверов:\n1. USA\n2. Germany\n3. Russia\n4. Japan")
 
 @dp.message_handler(commands=['get_key'])
 async def get_vpn_key(message: types.Message):
-    # Здесь должна быть проверка подписки. Пока что заглушка:
+    # Здесь должна быть проверка подписки; сейчас заглушка:
     is_subscribed = True  
     if is_subscribed:
         vpn_key = "VPN-KEY-EXAMPLE"
@@ -55,11 +55,17 @@ async def instructions(message: types.Message):
 
 @dp.message_handler(commands=['android'])
 async def android_instructions(message: types.Message):
-    await message.reply("Для Android: Скачайте и установите V2RayTun.\n1. Откройте приложение.\n2. Введите ключ и сервер.\n3. Подключитесь.")
+    await message.reply("Для Android: Скачайте и установите V2RayTun.\n"
+                        "1. Откройте приложение.\n"
+                        "2. Введите ключ и сервер.\n"
+                        "3. Подключитесь.")
 
 @dp.message_handler(commands=['iphone'])
 async def iphone_instructions(message: types.Message):
-    await message.reply("Для iPhone: Скачайте и установите Streisand.\n1. Откройте приложение.\n2. Введите ключ и сервер.\n3. Подключитесь.")
+    await message.reply("Для iPhone: Скачайте и установите Streisand.\n"
+                        "1. Откройте приложение.\n"
+                        "2. Введите ключ и сервер.\n"
+                        "3. Подключитесь.")
 
 if __name__ == '__main__':
     start_polling(dp, skip_updates=True)
