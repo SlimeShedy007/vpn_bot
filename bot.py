@@ -1,102 +1,71 @@
+import logging
 from aiogram import Bot, Dispatcher, types
-from aiogram.utils import executor
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
-from datetime import datetime, timedelta
+from aiogram.types import ParseMode
+from aiogram.utils.executor import start_polling
 
-API_TOKEN = '7143801443:AAHNzs17FTEDCyKwHX7URFDONJ2Px5WrlN0'
-ADMIN_ID = 342674896
-VPN_SUBSCRIPTION_LINK = 'https://s.creati.win/sub/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNDI2NzQ4OTYifQ.wVunTH7ngB4dwqrBbUq5qT6UBpRUUSZP5JrCKAqoGQw#✨SiriusVPN'
+API_TOKEN = '7143801443:AAFHgOFsDrphPPXRODN65XXdG7JhHKsEy84'
+USER_ID = 34267896
+SUPPORT_ID = '@serhiobk'
+
+logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
-users = {}  # user_id: expire_date
+@dp.message_handler(commands=['start', 'help'])
+async def send_welcome(message: types.Message):
+    await message.reply(
+        "Привет! Я бот для VPN-сервиса. Вот что я могу:\n\n"
+        "1. Оплатить подписку\n"
+        "2. Проверить подписку\n"
+        "3. Техподдержка - @serhiobk\n"
+        "4. Список серверов\n"
+        "5. Получить ключ (только после подписки)\n"
+        "6. Инструкция\n\n"
+        "Если нужна помощь, пиши в техподдержку: @serhiobk"
+    )
 
-main_menu = ReplyKeyboardMarkup(resize_keyboard=True)
-main_menu.add(
-    KeyboardButton("Оплатить подписку"),
-    KeyboardButton("Проверить подписку"),
-)
-main_menu.add(
-    KeyboardButton("Получить ключ"),
-    KeyboardButton("Инструкция"),
-)
-main_menu.add(
-    KeyboardButton("Список серверов"),
-    KeyboardButton("Тех поддержка"),
-)
+@dp.message_handler(commands=['techsupport'])
+async def tech_support(message: types.Message):
+    await message.reply(f"Если у вас возникли проблемы, напишите в техподдержку: {SUPPORT_ID}")
 
-instruction_menu = ReplyKeyboardMarkup(resize_keyboard=True)
-instruction_menu.add(
-    KeyboardButton("Для Android"),
-    KeyboardButton("Для iPhone"),
-)
-instruction_menu.add(
-    KeyboardButton("Назад"),
-)
+@dp.message_handler(commands=['check_sub'])
+async def check_subscription(message: types.Message):
+    # Здесь можно добавить реальную проверку подписки; сейчас заглушка:
+    days_left = 30
+    await message.reply(f"У вас осталось {days_left} дней подписки!")
 
-@dp.message_handler(commands=['start'])
-async def start_cmd(message: types.Message):
-    await message.answer("Добро пожаловать в VPN бот!", reply_markup=main_menu)
-
-@dp.message_handler(lambda msg: msg.text == "Оплатить подписку")
-async def pay_sub(message: types.Message):
-    await message.answer("Для оплаты переведите 200₽ по СБП на номер:\n\n"
-                         "+79061800102 (Тинькофф)\n\n"
-                         "После оплаты напишите /activate")
-
-@dp.message_handler(commands=['activate'])
-async def activate_user(message: types.Message):
-    if message.from_user.id != ADMIN_ID:
-        await message.answer("Только админ может активировать подписки.")
-        return
-
-    target_id = message.reply_to_message.from_user.id if message.reply_to_message else message.from_user.id
-    users[target_id] = datetime.now() + timedelta(days=30)
-    await message.answer(f"Пользователь {target_id} получил подписку на 30 дней.")
-
-@dp.message_handler(lambda msg: msg.text == "Проверить подписку")
-async def check_sub(message: types.Message):
-    expire = users.get(message.from_user.id)
-    if expire:
-        days_left = (expire - datetime.now()).days
-        await message.answer(f"Подписка активна. Осталось дней: {days_left}")
-    else:
-        await message.answer("У вас нет активной подписки.")
-
-@dp.message_handler(lambda msg: msg.text == "Получить ключ")
-async def get_key(message: types.Message):
-    expire = users.get(message.from_user.id)
-    if expire and expire > datetime.now():
-        await message.answer(f"Вот ваша ссылка для подключения:\n{VPN_SUBSCRIPTION_LINK}")
-    else:
-        await message.answer("Подписка не активна.")
-
-@dp.message_handler(lambda msg: msg.text == "Список серверов")
+@dp.message_handler(commands=['servers'])
 async def list_servers(message: types.Message):
-    await message.answer("Список серверов:\n\n1. 🇳🇱 Нидерланды\n2. 🇫🇷 Франция\n3. 🇩🇪 Германия\n4. 🇸🇬 Сингапур")
+    await message.reply("Список серверов:\n1. USA\n2. Germany\n3. Russia\n4. Japan")
 
-@dp.message_handler(lambda msg: msg.text == "Тех поддержка")
-async def support(message: types.Message):
-    await message.answer("Напишите администратору: tg://user?id=342674896")
+@dp.message_handler(commands=['get_key'])
+async def get_vpn_key(message: types.Message):
+    # Здесь должна быть проверка подписки; сейчас заглушка:
+    is_subscribed = True  
+    if is_subscribed:
+        vpn_key = "VPN-KEY-EXAMPLE"
+        await message.reply(f"Ваш VPN-ключ: {vpn_key}")
+    else:
+        await message.reply("Подписка не активирована. Пожалуйста, оплатите подписку для получения ключа.")
 
-@dp.message_handler(lambda msg: msg.text == "Инструкция")
-async def instruction(message: types.Message):
-    await message.answer("Выберите устройство:", reply_markup=instruction_menu)
+@dp.message_handler(commands=['instructions'])
+async def instructions(message: types.Message):
+    await message.reply("Выберите платформу:\n1. Android\n2. iPhone")
 
-@dp.message_handler(lambda msg: msg.text == "Для Android")
-async def android_instruction(message: types.Message):
-    await message.answer(f"1. Установите приложение V2RayTun из Play Market\n"
-                         f"2. Нажмите 'Импорт' и вставьте эту ссылку:\n{VPN_SUBSCRIPTION_LINK}")
+@dp.message_handler(commands=['android'])
+async def android_instructions(message: types.Message):
+    await message.reply("Для Android: Скачайте и установите V2RayTun.\n"
+                        "1. Откройте приложение.\n"
+                        "2. Введите ключ и сервер.\n"
+                        "3. Подключитесь.")
 
-@dp.message_handler(lambda msg: msg.text == "Для iPhone")
-async def iphone_instruction(message: types.Message):
-    await message.answer(f"1. Установите приложение Streisand из App Store\n"
-                         f"2. Откройте его и вставьте эту ссылку:\n{VPN_SUBSCRIPTION_LINK}")
-
-@dp.message_handler(lambda msg: msg.text == "Назад")
-async def back(message: types.Message):
-    await message.answer("Главное меню", reply_markup=main_menu)
+@dp.message_handler(commands=['iphone'])
+async def iphone_instructions(message: types.Message):
+    await message.reply("Для iPhone: Скачайте и установите Streisand.\n"
+                        "1. Откройте приложение.\n"
+                        "2. Введите ключ и сервер.\n"
+                        "3. Подключитесь.")
 
 if __name__ == '__main__':
-    executor.start_polling(dp)
+    start_polling(dp, skip_updates=True)
