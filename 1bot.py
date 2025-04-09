@@ -1,6 +1,6 @@
 import logging
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import executor
+from aiogram.utils.executor import start_polling
 from aiogram.utils import ParseMode
 
 API_TOKEN = '7143801443:AAFHgOFsDrphPPXRODN65XXdG7JhHKsEy84'
@@ -63,4 +63,5 @@ async def iphone_instructions(message: types.Message):
     await message.reply("Для iPhone: Скачайте и установите Streisand.\n1. Откройте приложение.\n2. Введите ключ и сервер.\n3. Подключитесь.")
 
 if __name__ == '__main__':
-    executor.start_polling(dp, skip_updates=True)
+    start_polling(dp, skip_updates=True)
+
