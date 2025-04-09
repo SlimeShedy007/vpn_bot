@@ -1,13 +1,12 @@
 import logging
 from aiogram import Bot, Dispatcher, types
+from aiogram.types import ParseMode
 from aiogram.utils.executor import start_polling
-from aiogram.utils import ParseMode
 
 API_TOKEN = '7143801443:AAFHgOFsDrphPPXRODN65XXdG7JhHKsEy84'
 USER_ID = 34267896
 SUPPORT_ID = '@serhiobk'
 
-# Configure logging
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=API_TOKEN)
@@ -32,8 +31,8 @@ async def tech_support(message: types.Message):
 
 @dp.message_handler(commands=['check_sub'])
 async def check_subscription(message: types.Message):
-    # Here, we can check if the user has a valid subscription, for now just mock it
-    days_left = 30  # Mock example
+    # Здесь можно проверить, активна ли подписка. Пока что используем заглушку.
+    days_left = 30  # Примерное значение
     await message.reply(f"У вас осталось {days_left} дней подписки!")
 
 @dp.message_handler(commands=['servers'])
@@ -42,8 +41,8 @@ async def list_servers(message: types.Message):
 
 @dp.message_handler(commands=['get_key'])
 async def get_vpn_key(message: types.Message):
-    # Check if user is subscribed
-    is_subscribed = True  # Mock subscription check
+    # Здесь должна быть проверка подписки. Пока что заглушка:
+    is_subscribed = True  
     if is_subscribed:
         vpn_key = "VPN-KEY-EXAMPLE"
         await message.reply(f"Ваш VPN-ключ: {vpn_key}")
@@ -64,4 +63,3 @@ async def iphone_instructions(message: types.Message):
 
 if __name__ == '__main__':
     start_polling(dp, skip_updates=True)
-
