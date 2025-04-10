@@ -2,18 +2,15 @@ import asyncio
 from aiogram import Bot, Dispatcher, Router, types
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message, DefaultBotProperties
+from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 API_TOKEN = '7143801443:AAEBG6BRDI5ae7P7S0URS414T14aHONbyWE'
 USER_ID = 34267896
 SUPPORT_ID = '@serhiobk'
 
-# Исправлено: новый способ указания parse_mode (без DeprecationWarning)
-bot = Bot(
-    token=API_TOKEN,
-    default=DefaultBotProperties(parse_mode=ParseMode.HTML)
-)
+# Старый способ (для версий aiogram < 3.0)
+bot = Bot(token=API_TOKEN, parse_mode=ParseMode.HTML)
 
 dp = Dispatcher(storage=MemoryStorage())
 router = Router()
