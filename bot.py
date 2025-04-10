@@ -53,12 +53,22 @@ async def show_instruction(callback: types.CallbackQuery):
 
 @dp.callback_query(lambda c: c.data == "android_instr")
 async def android_instr(callback: types.CallbackQuery):
-    await callback.message.answer("Инструкция для Android:\nСкачайте V2RayTun\n1. Откройте приложение\n2. Введите ключ и сервер\n3. Подключитесь.")
+    await callback.message.answer(
+        "Инструкция для Android:\n"
+        "1. Скачайте приложение V2RayTun из Play Market\n"
+        "2. Введите ваш ключ и адрес сервера\n"
+        "3. Подключитесь и пользуйтесь VPN"
+    )
     await callback.answer()
 
 @dp.callback_query(lambda c: c.data == "iphone_instr")
 async def iphone_instr(callback: types.CallbackQuery):
-    await callback.message.answer("Инструкция для iPhone:\nСкачайте Streisand\n1. Откройте приложение\n2. Введите ключ и сервер\n3. Подключитесь.")
+    await callback.message.answer(
+        "Инструкция для iPhone:\n"
+        "1. Скачайте приложение Streisand из App Store\n"
+        "2. Введите ваш ключ и адрес сервера\n"
+        "3. Подключитесь и пользуйтесь VPN"
+    )
     await callback.answer()
 
 async def main():
