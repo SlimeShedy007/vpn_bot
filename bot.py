@@ -17,11 +17,17 @@ router = Router()
 async def handle_all_messages(message: Message):
     if message.text in ["/start", "/help"]:
         builder = InlineKeyboardBuilder()
+        
         builder.button(text="Оплатить подписку", callback_data="pay")
+    
         builder.button(text="Проверить подписку", callback_data="check")
+        
         builder.button(text="Техподдержка", url=f"https://t.me/{SUPPORT_ID.lstrip('@')}")
+        
         builder.button(text="Список серверов", callback_data="servers")
+        
         builder.button(text="Получить ключ", callback_data="key")
+        
         builder.button(text="Инструкция", callback_data="instruction")
         await message.answer("Привет! Я бот для VPN-сервиса. Выберите опцию:", reply_markup=builder.as_markup())
 
