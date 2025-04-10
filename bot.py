@@ -19,16 +19,15 @@ async def handle_all_messages(message: Message):
         builder = InlineKeyboardBuilder()
         
         builder.button(text="Оплатить подписку", callback_data="pay")
-    
         builder.button(text="Проверить подписку", callback_data="check")
-        
         builder.button(text="Техподдержка", url=f"https://t.me/{SUPPORT_ID.lstrip('@')}")
-        
         builder.button(text="Список серверов", callback_data="servers")
-        
         builder.button(text="Получить ключ", callback_data="key")
-        
         builder.button(text="Инструкция", callback_data="instruction")
+        
+        # Указываем, что каждая кнопка должна быть в отдельном ряду
+        builder.adjust(1)
+        
         await message.answer("Привет! Я бот для VPN-сервиса. Выберите опцию:", reply_markup=builder.as_markup())
 
 @router.callback_query(lambda c: c.data == "pay")
@@ -56,6 +55,7 @@ async def show_instruction(callback: types.CallbackQuery):
     builder = InlineKeyboardBuilder()
     builder.button(text="Для Android", callback_data="android_instr")
     builder.button(text="Для iPhone", callback_data="iphone_instr")
+    builder.adjust(1)  # Кнопки "Для Android" и "Для iPhone" тоже в отдельных рядах
     await callback.message.answer("Выберите платформу:", reply_markup=builder.as_markup())
     await callback.answer()
 
@@ -80,6 +80,8 @@ async def iphone_instr(callback: types.CallbackQuery):
     await callback.answer()
 
 async def main():
+    # Удаляем вебхук перед запуском polling
+    await bot.delete_webhook(drop_pending_updates=True)
     dp.include_router(router)
     await dp.start_polling(bot)
 
