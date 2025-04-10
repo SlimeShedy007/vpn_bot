@@ -34,7 +34,7 @@ class BrandConfig:
 • Защита в общественных сетях
 """
 
-API_TOKEN = 'ВАШ_TELEGRAM_BOT_TOKEN'
+API_TOKEN = '7143801443:AAEBG6BRDI5ae7P7S0URS414T14aHONbyWE'
 SUPPORT_ID = '@serhiobk'
 
 # Инициализация бота с фирменным стилем
