@@ -1,71 +1,68 @@
-import logging
+import asyncio
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import ParseMode
-from aiogram.utils.executor import start_polling
+from aiogram.enums import ParseMode
+from aiogram.types import Message
+from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 API_TOKEN = '7143801443:AAFHgOFsDrphPPXRODN65XXdG7JhHKsEy84'
 USER_ID = 34267896
 SUPPORT_ID = '@serhiobk'
 
-logging.basicConfig(level=logging.INFO)
+bot = Bot(token=API_TOKEN, parse_mode=ParseMode.HTML)
+dp = Dispatcher(storage=MemoryStorage())
 
-bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+@dp.message(commands=["start", "help"])
+async def send_welcome(message: Message):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Оплатить подписку", callback_data="pay")
+    builder.button(text="Проверить подписку", callback_data="check")
+    builder.button(text="Техподдержка", url=f"https://t.me/{SUPPORT_ID.lstrip('@')}")
+    builder.button(text="Список серверов", callback_data="servers")
+    builder.button(text="Получить ключ", callback_data="key")
+    builder.button(text="Инструкция", callback_data="instruction")
+    await message.answer("Привет! Я бот для VPN-сервиса. Выберите опцию:", reply_markup=builder.as_markup())
 
-@dp.message_handler(commands=['start', 'help'])
-async def send_welcome(message: types.Message):
-    await message.reply(
-        "Привет! Я бот для VPN-сервиса. Вот что я могу:\n\n"
-        "1. Оплатить подписку\n"
-        "2. Проверить подписку\n"
-        "3. Техподдержка - @serhiobk\n"
-        "4. Список серверов\n"
-        "5. Получить ключ (только после подписки)\n"
-        "6. Инструкция\n\n"
-        "Если нужна помощь, пиши в техподдержку: @serhiobk"
-    )
+@dp.callback_query(lambda c: c.data == "pay")
+async def pay_subscription(callback: types.CallbackQuery):
+    await callback.message.answer("Реквизиты для оплаты по СБП:\n\nНомер: +79061800102\nСумма: 200₽ на 30 дней")
+    await callback.answer()
 
-@dp.message_handler(commands=['techsupport'])
-async def tech_support(message: types.Message):
-    await message.reply(f"Если у вас возникли проблемы, напишите в техподдержку: {SUPPORT_ID}")
+@dp.callback_query(lambda c: c.data == "check")
+async def check_sub(callback: types.CallbackQuery):
+    await callback.message.answer("У вас осталось 30 дней подписки (заглушка)")
+    await callback.answer()
 
-@dp.message_handler(commands=['check_sub'])
-async def check_subscription(message: types.Message):
-    # Здесь можно добавить реальную проверку подписки; сейчас заглушка:
-    days_left = 30
-    await message.reply(f"У вас осталось {days_left} дней подписки!")
+@dp.callback_query(lambda c: c.data == "servers")
+async def servers(callback: types.CallbackQuery):
+    await callback.message.answer("Список серверов:\n1. USA\n2. Germany\n3. Russia\n4. Japan")
+    await callback.answer()
 
-@dp.message_handler(commands=['servers'])
-async def list_servers(message: types.Message):
-    await message.reply("Список серверов:\n1. USA\n2. Germany\n3. Russia\n4. Japan")
+@dp.callback_query(lambda c: c.data == "key")
+async def get_key(callback: types.CallbackQuery):
+    await callback.message.answer("Ваш VPN-ключ: VPN-KEY-EXAMPLE")
+    await callback.answer()
 
-@dp.message_handler(commands=['get_key'])
-async def get_vpn_key(message: types.Message):
-    # Здесь должна быть проверка подписки; сейчас заглушка:
-    is_subscribed = True  
-    if is_subscribed:
-        vpn_key = "VPN-KEY-EXAMPLE"
-        await message.reply(f"Ваш VPN-ключ: {vpn_key}")
-    else:
-        await message.reply("Подписка не активирована. Пожалуйста, оплатите подписку для получения ключа.")
+@dp.callback_query(lambda c: c.data == "instruction")
+async def show_instruction(callback: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Для Android", callback_data="android_instr")
+    builder.button(text="Для iPhone", callback_data="iphone_instr")
+    await callback.message.answer("Выберите платформу:", reply_markup=builder.as_markup())
+    await callback.answer()
 
-@dp.message_handler(commands=['instructions'])
-async def instructions(message: types.Message):
-    await message.reply("Выберите платформу:\n1. Android\n2. iPhone")
+@dp.callback_query(lambda c: c.data == "android_instr")
+async def android_instr(callback: types.CallbackQuery):
+    await callback.message.answer("Инструкция для Android:\nСкачайте V2RayTun\n1. Откройте приложение\n2. Введите ключ и сервер\n3. Подключитесь.")
+    await callback.answer()
 
-@dp.message_handler(commands=['android'])
-async def android_instructions(message: types.Message):
-    await message.reply("Для Android: Скачайте и установите V2RayTun.\n"
-                        "1. Откройте приложение.\n"
-                        "2. Введите ключ и сервер.\n"
-                        "3. Подключитесь.")
+@dp.callback_query(lambda c: c.data == "iphone_instr")
+async def iphone_instr(callback: types.CallbackQuery):
+    await callback.message.answer("Инструкция для iPhone:\nСкачайте Streisand\n1. Откройте приложение\n2. Введите ключ и сервер\n3. Подключитесь.")
+    await callback.answer()
 
-@dp.message_handler(commands=['iphone'])
-async def iphone_instructions(message: types.Message):
-    await message.reply("Для iPhone: Скачайте и установите Streisand.\n"
-                        "1. Откройте приложение.\n"
-                        "2. Введите ключ и сервер.\n"
-                        "3. Подключитесь.")
+async def main():
+    await dp.start_polling(bot)
 
-if __name__ == '__main__':
-    start_polling(dp, skip_updates=True)
+if __name__ == "__main__":
+    asyncio.run(main())
