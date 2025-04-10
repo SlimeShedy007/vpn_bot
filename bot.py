@@ -2,14 +2,19 @@ import asyncio
 from aiogram import Bot, Dispatcher, Router, types
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.types import Message
+from aiogram.types import Message, DefaultBotProperties
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 API_TOKEN = '7143801443:AAEBG6BRDI5ae7P7S0URS414T14aHONbyWE'
 USER_ID = 34267896
 SUPPORT_ID = '@serhiobk'
 
-bot = Bot(token=API_TOKEN, parse_mode=ParseMode.HTML)
+# Исправлено: новый способ указания parse_mode (без DeprecationWarning)
+bot = Bot(
+    token=API_TOKEN,
+    default=DefaultBotProperties(parse_mode=ParseMode.HTML)
+)
+
 dp = Dispatcher(storage=MemoryStorage())
 router = Router()
 
@@ -25,7 +30,7 @@ async def handle_all_messages(message: Message):
         builder.button(text="Получить ключ", callback_data="key")
         builder.button(text="Инструкция", callback_data="instruction")
         
-        # Указываем, что каждая кнопка должна быть в отдельном ряду
+        # Каждая кнопка в отдельном ряду
         builder.adjust(1)
         
         await message.answer("Привет! Я бот для VPN-сервиса. Выберите опцию:", reply_markup=builder.as_markup())
@@ -55,7 +60,7 @@ async def show_instruction(callback: types.CallbackQuery):
     builder = InlineKeyboardBuilder()
     builder.button(text="Для Android", callback_data="android_instr")
     builder.button(text="Для iPhone", callback_data="iphone_instr")
-    builder.adjust(1)  # Кнопки "Для Android" и "Для iPhone" тоже в отдельных рядах
+    builder.adjust(1)  # Кнопки в отдельных рядах
     await callback.message.answer("Выберите платформу:", reply_markup=builder.as_markup())
     await callback.answer()
 
@@ -80,8 +85,10 @@ async def iphone_instr(callback: types.CallbackQuery):
     await callback.answer()
 
 async def main():
-    # Удаляем вебхук перед запуском polling
+    # Удаляем вебхук и убеждаемся, что нет конфликта
     await bot.delete_webhook(drop_pending_updates=True)
+    
+    # Подключаем роутер и запускаем бота
     dp.include_router(router)
     await dp.start_polling(bot)
 
