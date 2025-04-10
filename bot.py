@@ -5,7 +5,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-API_TOKEN = '7143801443:AAF3YJmz4DLA2S6uZzRrK0HFvgGQTVEsRXI'
+API_TOKEN = '7143801443:AAEBG6BRDI5ae7P7S0URS414T14aHONbyWE'
 USER_ID = 34267896
 SUPPORT_ID = '@serhiobk'
 
