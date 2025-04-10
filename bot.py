@@ -4,111 +4,111 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.client.default import DefaultBotProperties
-
-# Конфигурация бренда
-class BrandConfig:
-    NAME = "🔒 VPN Guardian"
-    TAGLINE = "Ваш цифровой телохранитель"
-    COLORS = {
-        "primary": "#6e48aa",
-        "secondary": "#00b4db",
-        "dark": "#0f0c29",
-        "light": "#f8f9fa"
-    }
-    DESCRIPTION = """
-🛡️ <b>Премиум VPN с военной шифровкой</b>
-🌍 50+ серверов в 20 странах
-⚡ Скорость до 1 Гбит/с
-🤖 Автоподбор оптимального сервера
-"""
-    WELCOME_TEXT = f"""
-<b>{NAME}</b> - {TAGLINE}
-
-{DESCRIPTION}
-
-📌 <i>Ваши преимущества:</i>
-• Анонимный серфинг без следов
-• Обход любых блокировок
-• 256-bit AES шифрование
-• Защита в общественных сетях
-"""
 
 API_TOKEN = '7143801443:AAEBG6BRDI5ae7P7S0URS414T14aHONbyWE'
-SUPPORT_ID = '@serhiobk'
+ADMIN_ID = 34267896
+SUPPORT_USERNAME = '@serhiobk'
+VPN_LINK = "https://s.creati.win/sub/eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIzNDI2NzQ4OTYifQ.wVunTH7ngB4dwqrBbUq5qT6UBpRUUSZP5JrCKAqoGQw#%E2%9C%A8SiriusVPN"
 
-# Инициализация бота с фирменным стилем
-bot = Bot(
-    token=API_TOKEN,
-    default=DefaultBotProperties(
-        parse_mode=ParseMode.HTML,
-        link_preview_is_disabled=True
-    )
-)
-
+bot = Bot(token=API_TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher(storage=MemoryStorage())
 router = Router()
 
-# Генератор кнопок с фирменным стилем
-def generate_keyboard():
-    builder = InlineKeyboardBuilder()
-    buttons = [
-        ("💳 Оплатить подписку", "pay"),
-        ("🛡️ Проверить защиту", "check"),
-        ("🌍 Выбрать сервер", "servers"),
-        ("🔑 Получить ключ", "key"),
-        ("📚 Инструкция", "instruction"),
-        ("🆘 Техподдержка", f"url:https://t.me/{SUPPORT_ID.lstrip('@')}")
-    ]
-    
-    for text, data in buttons:
-        if data.startswith("url:"):
-            builder.button(text=text, url=data[4:])
-        else:
-            builder.button(text=text, callback_data=data)
-    
-    builder.adjust(1)  # Все кнопки в один столбец
-    return builder.as_markup()
+@router.message()
+async def handle_all_messages(message: Message):
+    if message.text == "/start":
+        builder = InlineKeyboardBuilder()
+        builder.button(text="▶️ Старт", callback_data="main_menu")
+        await message.answer(
+            "<b>Добро пожаловать в SiriusVPN</b>\n"
+            "Надёжный VPN-доступ в одно касание.",
+            reply_markup=builder.as_markup()
+        )
+    else:
+        await message.answer("Нажмите /start для начала.")
 
-@router.message(commands=['start', 'help'])
-async def send_welcome(message: Message):
-    await message.answer_photo(
-        photo="https://i.imgur.com/9zQ4W8j.png",  # Замените на реальный URL логотипа
-        caption=BrandConfig.WELCOME_TEXT,
-        reply_markup=generate_keyboard()
+@router.callback_query(lambda c: c.data == "main_menu")
+async def show_main_menu(callback: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="1️⃣ Оплатить подписку", callback_data="pay")
+    builder.button(text="2️⃣ Проверить подписку", callback_data="check")
+    builder.button(text="3️⃣ Техподдержка", url=f"https://t.me/{SUPPORT_USERNAME.lstrip('@')}")
+    builder.button(text="4️⃣ Список серверов", callback_data="servers")
+    builder.button(text="5️⃣ Получить ключ", callback_data="key")
+    builder.button(text="6️⃣ Инструкция", callback_data="instruction")
+    builder.adjust(1)
+
+    await callback.message.answer(
+        "<b>Меню управления:</b>\nВыберите нужный пункт ниже:",
+        reply_markup=builder.as_markup()
     )
+    await callback.answer()
 
 @router.callback_query(lambda c: c.data == "pay")
-async def process_pay(callback: types.CallbackQuery):
-    text = (
-        "💳 <b>Премиум подписка</b>\n\n"
-        "🔹 <i>200₽ на 30 дней</i>\n"
-        "🔸 <i>500₽ на 90 дней (экономия 16%)</i>\n\n"
-        "📱 <b>Реквизиты для оплаты:</b>\n"
-        "СБП: <code>+79061800102</code>\n"
-        "Крипто: BTC/ETH/USDT\n\n"
-        "После оплаты пришлите скриншот в поддержку"
+async def pay_subscription(callback: types.CallbackQuery):
+    await callback.message.answer(
+        "<b>Оплата подписки:</b>\n\n"
+        "СБП (Тинькофф)\n"
+        "Номер: <code>+79061800102</code>\n"
+        "Сумма: 200₽ / 30 дней"
     )
-    await callback.message.edit_text(text, reply_markup=generate_keyboard())
     await callback.answer()
 
 @router.callback_query(lambda c: c.data == "check")
-async def process_check(callback: types.CallbackQuery):
-    status = (
-        "🛡️ <b>Статус защиты</b>\n\n"
-        "🔒 <i>Шифрование:</i> <b>активно</b> (AES-256)\n"
-        "🌐 <i>Сервер:</i> <b>#GER-12</b> (Франкфурт)\n"
-        "⏱ <i>Пинг:</i> <b>24ms</b>\n"
-        "📶 <i>Скорость:</i> <b>78 Мбит/с</b>\n\n"
-        "🟢 <u>Все системы работают нормально</u>"
+async def check_sub(callback: types.CallbackQuery):
+    await callback.message.answer(
+        "<b>Статус подписки:</b>\nОсталось: <code>30 дней</code> (заглушка)"
     )
-    await callback.message.edit_text(status, reply_markup=generate_keyboard())
     await callback.answer()
 
-# Остальные обработчики (servers, key, instruction) остаются аналогичными
+@router.callback_query(lambda c: c.data == "servers")
+async def servers(callback: types.CallbackQuery):
+    await callback.message.answer(
+        "<b>Список серверов:</b>\n"
+        "🇺🇸 USA\n"
+        "🇩🇪 Germany\n"
+        "🇷🇺 Russia\n"
+        "🇯🇵 Japan"
+    )
+    await callback.answer()
+
+@router.callback_query(lambda c: c.data == "key")
+async def get_key(callback: types.CallbackQuery):
+    await callback.message.answer(
+        f"<b>Ваш VPN-ключ:</b>\n\n<code>{VPN_LINK}</code>"
+    )
+    await callback.answer()
+
+@router.callback_query(lambda c: c.data == "instruction")
+async def show_instruction(callback: types.CallbackQuery):
+    builder = InlineKeyboardBuilder()
+    builder.button(text="📱 Для Android", callback_data="android_instr")
+    builder.button(text="📱 Для iPhone", callback_data="iphone_instr")
+    builder.adjust(1)
+    await callback.message.answer("Выберите вашу платформу:", reply_markup=builder.as_markup())
+    await callback.answer()
+
+@router.callback_query(lambda c: c.data == "android_instr")
+async def android_instr(callback: types.CallbackQuery):
+    await callback.message.answer(
+        "<b>Инструкция для Android:</b>\n\n"
+        "1. Скачайте <b>V2RayTun</b> из Google Play\n"
+        "2. Вставьте ссылку из кнопки 'Получить ключ'\n"
+        "3. Нажмите 'Подключиться'"
+    )
+    await callback.answer()
+
+@router.callback_query(lambda c: c.data == "iphone_instr")
+async def iphone_instr(callback: types.CallbackQuery):
+    await callback.message.answer(
+        "<b>Инструкция для iPhone:</b>\n\n"
+        "1. Скачайте <b>Streisand</b> из App Store\n"
+        "2. Вставьте ссылку из кнопки 'Получить ключ'\n"
+        "3. Подключитесь"
+    )
+    await callback.answer()
 
 async def main():
-    await bot.delete_webhook(drop_pending_updates=True)
     dp.include_router(router)
     await dp.start_polling(bot)
 
